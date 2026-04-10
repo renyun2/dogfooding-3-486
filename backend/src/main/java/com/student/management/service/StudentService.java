@@ -2,19 +2,23 @@ package com.student.management.service;
 
 import com.student.management.entity.Student;
 import com.student.management.repository.StudentRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class StudentService {
 
+    private static final Logger log = LoggerFactory.getLogger(StudentService.class);
+
     private final StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public List<Student> getAllStudents() {
         log.info("Fetching all students");

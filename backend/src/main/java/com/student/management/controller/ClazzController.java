@@ -5,7 +5,6 @@ import com.student.management.service.ClazzService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +15,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/classes")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "班级管理", description = "班级信息的增删改查接口")
 public class ClazzController {
 
     private final ClazzService clazzService;
+
+    public ClazzController(ClazzService clazzService) {
+        this.clazzService = clazzService;
+    }
 
     @GetMapping
     @Operation(summary = "获取所有班级")

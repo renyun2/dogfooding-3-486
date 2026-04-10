@@ -1,22 +1,21 @@
-# 构建阶段
-FROM maven:3.9-eclipse-temurin-17 AS build
+# 构建阶段 - 使用本地已有的镜像
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# 拷贝 Maven 配置文件
-COPY settings.xml /usr/share/maven/ref/settings.xml
-COPY pom.xml .
+# 安装 Maven 和 JDK
+RUN apk add --no-cache maven openjdk17
 
-# 预下载依赖
-RUN mvn -s /usr/share/maven/ref/settings.xml dependency:go-offline
+# 拷贝 Maven 配置文件
+COPY pom.xml .
 
 # 拷贝源代码
 COPY src ./src
 
-# 打包应用
-RUN mvn -s /usr/share/maven/ref/settings.xml package -DskipTests
+# 打包应用（包含 Lombok 处理）
+RUN mvn clean compile package -DskipTests
 
 # 运行阶段
-FROM eclipse-temurin:17-jre
+FROM golang:1.25-bookworm
 WORKDIR /app
 
 # 从构建阶段拷贝 JAR 文件

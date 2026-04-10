@@ -5,7 +5,6 @@ import com.student.management.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +15,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/students")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "学生管理", description = "学生信息的增删改查接口")
 public class StudentController {
 
     private final StudentService studentService;
+
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     @GetMapping
     @Operation(summary = "获取所有学生")

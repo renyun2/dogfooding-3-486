@@ -18,15 +18,27 @@ INSERT INTO students (name, gender, age, email, phone, enrollment_date, clazz_id
 ('王十二', '女', 19, 'wang12@example.com', '13800138010', '2024-09-01', 2, NOW(), NOW())
 ON DUPLICATE KEY UPDATE updated_at = NOW();
 
--- 插入课程数据
-INSERT INTO courses (name, credits, instructor, description) VALUES
-('高等数学', 4, '张教授', '微积分、线性代数等数学基础课程'),
-('大学英语', 3, '李老师', '英语听说读写综合能力培养'),
-('计算机基础', 3, '王教授', 'Python程序设计和算法基础'),
-('数据结构', 4, '赵教授', '线性表、树、图等数据结构及算法'),
-('数据库原理', 3, '钱教授', '关系型数据库设计与SQL查询'),
-('Web开发', 3, '孙老师', 'HTML、CSS、JavaScript全栈开发'),
-('软件工程', 3, '周教授', '软件开发生命周期与项目管理')
+-- 插入教师数据
+INSERT INTO teachers (teacher_no, name, gender, title, department, phone, email, hire_date, created_at, updated_at) VALUES
+('T2024001', '张教授', '男', '教授', '数学学院', '13800138011', 'zhangprof@example.com', '2015-09-01', NOW(), NOW()),
+('T2024002', '李老师', '女', '副教授', '外国语学院', '13800138012', 'lili@example.com', '2018-03-15', NOW(), NOW()),
+('T2024003', '王教授', '男', '教授', '计算机学院', '13800138013', 'wangprof@example.com', '2012-07-01', NOW(), NOW()),
+('T2024004', '赵教授', '男', '教授', '计算机学院', '13800138014', 'zhaoprof@example.com', '2010-09-01', NOW(), NOW()),
+('T2024005', '钱教授', '女', '教授', '计算机学院', '13800138015', 'qianprof@example.com', '2014-03-01', NOW(), NOW()),
+('T2024006', '孙老师', '女', '讲师', '软件学院', '13800138016', 'sunli@example.com', '2020-09-01', NOW(), NOW()),
+('T2024007', '周教授', '男', '副教授', '软件学院', '13800138017', 'zhouprof@example.com', '2016-07-01', NOW(), NOW()),
+('T2024008', '吴老师', '男', '讲师', '人工智能学院', '13800138018', 'wuli@example.com', '2021-09-01', NOW(), NOW())
+ON DUPLICATE KEY UPDATE updated_at = NOW();
+
+-- 插入课程数据，关联教师
+INSERT INTO courses (name, credits, instructor, description, teacher_id) VALUES
+('高等数学', 4, '张教授', '微积分、线性代数等数学基础课程', 1),
+('大学英语', 3, '李老师', '英语听说读写综合能力培养', 2),
+('计算机基础', 3, '王教授', 'Python程序设计和算法基础', 3),
+('数据结构', 4, '赵教授', '线性表、树、图等数据结构及算法', 4),
+('数据库原理', 3, '钱教授', '关系型数据库设计与SQL查询', 5),
+('Web开发', 3, '孙老师', 'HTML、CSS、JavaScript全栈开发', 6),
+('软件工程', 3, '周教授', '软件开发生命周期与项目管理', 7)
 ON DUPLICATE KEY UPDATE name=name;
 
 -- 插入成绩数据

@@ -5,7 +5,6 @@ import com.student.management.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +15,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/courses")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "课程管理", description = "课程信息的增删改查接口")
 public class CourseController {
 
     private final CourseService courseService;
+
+    public CourseController(CourseService courseService) {
+        this.courseService = courseService;
+    }
 
     @GetMapping
     @Operation(summary = "获取所有课程")
