@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: student-management
+  
+  datasource:
+    url: jdbc:mysql://db:3306/student_management?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+      continue-on-error: true
+
+admin:
+  username: admin
+  password: admin123456
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.student: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

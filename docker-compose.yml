@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: student-management-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: student_management
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3347:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: student-management-backend
+    ports:
+      - "8247:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/student_management?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - app-network
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: student-management-frontend
+    ports:
+      - "3247:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
