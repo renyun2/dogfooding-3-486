@@ -78,12 +78,11 @@ const handleLogin = async () => {
     loading.value = true
     try {
       const res = await login(form.username, form.password)
-      localStorage.setItem('token', res.token)
-      localStorage.setItem('username', res.username)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('username', res.data.username)
       ElMessage.success('登录成功，欢迎回来！')
       router.push('/')
     } catch {
-      // 错误提示已由 request.js 拦截器处理
     } finally {
       loading.value = false
     }

@@ -1,5 +1,7 @@
 package com.student.management.controller;
 
+import com.student.management.common.PageResult;
+import com.student.management.common.Result;
 import com.student.management.entity.Student;
 import com.student.management.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,9 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/students")
@@ -25,79 +25,64 @@ public class StudentController {
 
     @GetMapping
     @Operation(summary = "获取所有学生")
-    public ResponseEntity<Map<String, Object>> getAllStudents() {
+    public ResponseEntity<Result<List<Student>>> getAllStudents() {
         List<Student> students = studentService.getAllStudents();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", students);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", students));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取学生")
-    public ResponseEntity<Map<String, Object>> getStudentById(@PathVariable Long id) {
+    public ResponseEntity<Result<Student>> getStudentById(@PathVariable Long id) {
         Student student = studentService.getStudentById(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", student);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", student));
     }
 
     @PostMapping
     @Operation(summary = "创建新学生")
-    public ResponseEntity<Map<String, Object>> createStudent(@Valid @RequestBody Student student) {
+    public ResponseEntity<Result<Student>> createStudent(@Valid @RequestBody Student student) {
         Student created = studentService.createStudent(student);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 201);
-        response.put("message", "创建成功");
-        response.put("data", created);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Result.success(201, "创建成功", created));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新学生信息")
-    public ResponseEntity<Map<String, Object>> updateStudent(
+    public ResponseEntity<Result<Student>> updateStudent(
             @PathVariable Long id,
             @Valid @RequestBody Student student) {
         Student updated = studentService.updateStudent(id, student);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "更新成功");
-        response.put("data", updated);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("更新成功", updated));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除学生")
-    public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable Long id) {
+    public ResponseEntity<Result<Void>> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "删除成功");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("删除成功", null));
     }
 
     @GetMapping("/search")
     @Operation(summary = "按姓名搜索学生")
-    public ResponseEntity<Map<String, Object>> searchStudents(@RequestParam String name) {
+    public ResponseEntity<Result<List<Student>>> searchStudents(@RequestParam String name) {
         List<Student> students = studentService.searchStudents(name);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "搜索成功");
-        response.put("data", students);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("搜索成功", students));
     }
 
     @GetMapping("/count")
     @Operation(summary = "获取学生总数")
-    public ResponseEntity<Map<String, Object>> getStudentCount() {
+    public ResponseEntity<Result<Long>> getStudentCount() {
         long count = studentService.getTotalCount();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", count);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", count));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "分页获取学生")
+    public ResponseEntity<Result<PageResult<Student>>> getStudentsPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        PageResult<Student> pageResult = studentService.getStudentsPage(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(Result.success("查询成功", pageResult));
     }
 }
