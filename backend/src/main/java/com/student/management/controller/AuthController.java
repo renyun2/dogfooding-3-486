@@ -1,5 +1,7 @@
 package com.student.management.controller;
 
+import com.student.management.common.Result;
+import com.student.management.exception.BusinessException;
 import com.student.management.service.SystemConfigService;
 import com.student.management.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,64 +30,49 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "管理员登录")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<Result<Map<String, String>>> login(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
-        Map<String, Object> response = new HashMap<>();
         if (adminUsername.equals(username) && systemConfigService.getAdminPassword().equals(password)) {
             String token = tokenService.createToken(username);
-            response.put("code", 200);
-            response.put("message", "登录成功");
-            response.put("token", token);
-            response.put("username", username);
-            return ResponseEntity.ok(response);
+            Map<String, String> data = new HashMap<>();
+            data.put("token", token);
+            data.put("username", username);
+            return ResponseEntity.ok(Result.success("登录成功", data));
         }
-        response.put("code", 401);
-        response.put("message", "用户名或密码错误");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Result.fail(401, "用户名或密码错误"));
     }
 
     @PostMapping("/logout")
     @Operation(summary = "管理员退出")
-    public ResponseEntity<Map<String, Object>> logout(
+    public ResponseEntity<Result<Void>> logout(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             tokenService.removeToken(authHeader.substring(7));
         }
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "退出成功");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("退出成功", null));
     }
 
     @PutMapping("/password")
     @Operation(summary = "修改管理员密码")
-    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Result<Void>> changePassword(@RequestBody Map<String, String> request) {
         String oldPassword = request.get("oldPassword");
         String newPassword = request.get("newPassword");
 
-        Map<String, Object> response = new HashMap<>();
-
         if (oldPassword == null || oldPassword.isBlank()) {
-            response.put("code", 400);
-            response.put("message", "原密码不能为空");
-            return ResponseEntity.badRequest().body(response);
+            throw new BusinessException(400, "原密码不能为空");
         }
         if (newPassword == null || newPassword.length() < 6) {
-            response.put("code", 400);
-            response.put("message", "新密码长度不能少于6位");
-            return ResponseEntity.badRequest().body(response);
+            throw new BusinessException(400, "新密码长度不能少于6位");
         }
         if (!systemConfigService.getAdminPassword().equals(oldPassword)) {
-            response.put("code", 400);
-            response.put("message", "原密码错误");
-            return ResponseEntity.badRequest().body(response);
+            throw new BusinessException(400, "原密码错误");
         }
 
         systemConfigService.setAdminPassword(newPassword);
-        response.put("code", 200);
-        response.put("message", "密码修改成功");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("密码修改成功", null));
     }
 }

@@ -1,9 +1,16 @@
 package com.student.management.service;
 
+import com.student.management.common.PageResult;
 import com.student.management.entity.Student;
+import com.student.management.exception.BusinessException;
+import com.student.management.exception.ResourceNotFoundException;
 import com.student.management.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StudentService {
+public class StudentService implements IStudentService {
 
     private final StudentRepository studentRepository;
 
@@ -26,7 +33,7 @@ public class StudentService {
         return studentRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Student not found with id: {}", id);
-                    return new RuntimeException("学生不存在，ID: " + id);
+                    return new ResourceNotFoundException("学生", "ID", id);
                 });
     }
 
@@ -36,7 +43,7 @@ public class StudentService {
 
         if (studentRepository.existsByEmail(student.getEmail())) {
             log.error("Email already exists: {}", student.getEmail());
-            throw new RuntimeException("邮箱已存在: " + student.getEmail());
+            throw new BusinessException("邮箱已存在: " + student.getEmail());
         }
 
         Student saved = studentRepository.save(student);
@@ -50,11 +57,10 @@ public class StudentService {
 
         Student existing = getStudentById(id);
 
-        // Check email uniqueness if changed
         if (!existing.getEmail().equals(student.getEmail())
                 && studentRepository.existsByEmail(student.getEmail())) {
             log.error("Email already exists: {}", student.getEmail());
-            throw new RuntimeException("邮箱已存在: " + student.getEmail());
+            throw new BusinessException("邮箱已存在: " + student.getEmail());
         }
 
         existing.setName(student.getName());
@@ -85,5 +91,23 @@ public class StudentService {
     public long getTotalCount() {
         log.info("Fetching total student count");
         return studentRepository.count();
+    }
+
+    public PageResult<Student> getStudentsPage(int page, int size, String sortBy, String sortDir) {
+        log.info("Fetching students page: {}, size: {}", page, size);
+        
+        Sort sort = sortDir.equalsIgnoreCase("desc") 
+                ? Sort.by(sortBy).descending() 
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        
+        Page<Student> pageResult = studentRepository.findAll(pageable);
+        
+        return PageResult.of(
+                pageResult.getContent(),
+                pageResult.getTotalElements(),
+                pageResult.getNumber() + 1,
+                pageResult.getSize()
+        );
     }
 }
