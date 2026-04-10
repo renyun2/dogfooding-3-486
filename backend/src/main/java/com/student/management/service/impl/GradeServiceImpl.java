@@ -1,7 +1,12 @@
-package com.student.management.service;
+package com.student.management.service.impl;
 
 import com.student.management.entity.Grade;
+import com.student.management.exception.BusinessException;
+import com.student.management.exception.ResourceNotFoundException;
 import com.student.management.repository.GradeRepository;
+import com.student.management.service.IGradeService;
+import com.student.management.service.IStudentService;
+import com.student.management.service.ICourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,51 +19,49 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GradeService {
+public class GradeServiceImpl implements IGradeService {
 
     private final GradeRepository gradeRepository;
-    private final StudentService studentService;
-    private final CourseService courseService;
+    private final IStudentService studentService;
+    private final ICourseService courseService;
 
+    @Override
     public List<Grade> getAllGrades() {
         log.info("Fetching all grades");
         return gradeRepository.findAll();
     }
 
+    @Override
     public Grade getGradeById(Long id) {
         log.info("Fetching grade with id: {}", id);
         return gradeRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Grade not found with id: {}", id);
-                    return new RuntimeException("成绩记录不存在，ID: " + id);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("成绩记录不存在，ID: " + id));
     }
 
+    @Override
     public List<Grade> getGradesByStudentId(Long studentId) {
         log.info("Fetching grades for student id: {}", studentId);
         return gradeRepository.findByStudentId(studentId);
     }
 
+    @Override
     public List<Grade> getGradesByCourseId(Long courseId) {
         log.info("Fetching grades for course id: {}", courseId);
         return gradeRepository.findByCourseId(courseId);
     }
 
+    @Override
     @Transactional
     public Grade createGrade(Grade grade) {
         log.info("Creating new grade for student {} and course {}",
                 grade.getStudentId(), grade.getCourseId());
 
-        // Validate student and course exist
         studentService.getStudentById(grade.getStudentId());
         courseService.getCourseById(grade.getCourseId());
 
-        // Check if grade already exists for this student-course combination
         if (gradeRepository.findByStudentIdAndCourseId(
                 grade.getStudentId(), grade.getCourseId()).isPresent()) {
-            log.error("Grade already exists for student {} and course {}",
-                    grade.getStudentId(), grade.getCourseId());
-            throw new RuntimeException("该学生在此课程中已有成绩记录");
+            throw new BusinessException("该学生在此课程中已有成绩记录");
         }
 
         Grade saved = gradeRepository.save(grade);
@@ -66,6 +69,7 @@ public class GradeService {
         return saved;
     }
 
+    @Override
     @Transactional
     public Grade updateGrade(Long id, Grade grade) {
         log.info("Updating grade with id: {}", id);
@@ -78,6 +82,7 @@ public class GradeService {
         return updated;
     }
 
+    @Override
     @Transactional
     public void deleteGrade(Long id) {
         log.info("Deleting grade with id: {}", id);
@@ -86,6 +91,7 @@ public class GradeService {
         log.info("Grade deleted successfully with id: {}", id);
     }
 
+    @Override
     public Map<String, Object> getStatistics() {
         log.info("Fetching grade statistics");
 
@@ -95,12 +101,14 @@ public class GradeService {
         return stats;
     }
 
+    @Override
     public Double getAverageScoreByStudent(Long studentId) {
         log.info("Calculating average score for student: {}", studentId);
         Double avg = gradeRepository.getAverageScoreByStudentId(studentId);
         return avg != null ? avg : 0.0;
     }
 
+    @Override
     public Double getAverageScoreByCourse(Long courseId) {
         log.info("Calculating average score for course: {}", courseId);
         Double avg = gradeRepository.getAverageScoreByCourseId(courseId);

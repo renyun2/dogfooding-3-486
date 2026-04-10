@@ -6,7 +6,6 @@
     </h1>
     
     <div class="page-card">
-      <!-- 操作栏 -->
       <div class="action-bar">
         <el-input
           v-model="searchQuery"
@@ -28,7 +27,6 @@
         </el-button>
       </div>
       
-      <!-- 学生表格 -->
       <el-table 
         :data="students" 
         v-loading="loading"
@@ -72,7 +70,6 @@
       </el-table>
     </div>
     
-    <!-- 添加/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑学生' : '添加学生'"
@@ -141,22 +138,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { User, Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { studentApi } from '../api/student'
 import { getAllClasses } from '../api/clazz'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { useCrud } from '../composables/useCrud'
 
-const loading = ref(false)
-const submitting = ref(false)
-const students = ref([])
-const clazzes = ref([])
 const searchQuery = ref('')
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const formRef = ref(null)
+const clazzes = ref([])
 
-const formData = reactive({
+const DEFAULT_FORM = {
   id: null,
   name: '',
   gender: '男',
@@ -165,7 +156,29 @@ const formData = reactive({
   phone: '',
   enrollmentDate: '',
   clazzId: null
-})
+}
+
+const {
+  loading,
+  submitting,
+  dataList: students,
+  dialogVisible,
+  isEdit,
+  formRef,
+  formData,
+  loadData: loadStudents,
+  handleAdd,
+  handleEdit,
+  handleDelete,
+  handleSubmit,
+  resetForm
+} = useCrud(
+  () => studentApi.getAll(),
+  (data) => studentApi.create(data),
+  (id, data) => studentApi.update(id, data),
+  (id) => studentApi.delete(id),
+  DEFAULT_FORM
+)
 
 const rules = {
   name: [
@@ -194,13 +207,16 @@ const rules = {
   ]
 }
 
-const loadStudents = async () => {
+const handleSearch = async () => {
+  if (!searchQuery.value.trim()) {
+    loadStudents()
+    return
+  }
+  
   loading.value = true
   try {
-    const res = await studentApi.getAll()
+    const res = await studentApi.search(searchQuery.value)
     students.value = res.data || []
-  } catch (error) {
-    console.error('Failed to load students:', error)
   } finally {
     loading.value = false
   }
@@ -213,95 +229,6 @@ const loadClasses = async () => {
   } catch (error) {
     console.error('Failed to load classes:', error)
   }
-}
-
-const handleSearch = async () => {
-  if (!searchQuery.value.trim()) {
-    loadStudents()
-    return
-  }
-  
-  loading.value = true
-  try {
-    const res = await studentApi.search(searchQuery.value)
-    students.value = res.data || []
-    ElMessage.success(`找到 ${students.value.length} 条记录`)
-  } catch (error) {
-    console.error('Search failed:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleAdd = () => {
-  isEdit.value = false
-  resetForm()
-  dialogVisible.value = true
-}
-
-const handleEdit = (row) => {
-  isEdit.value = true
-  Object.assign(formData, row)
-  dialogVisible.value = true
-}
-
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除学生 "${row.name}" 吗？该操作将同时删除其所有成绩记录！`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  ).then(async () => {
-    try {
-      await studentApi.delete(row.id)
-      ElMessage.success('删除成功')
-      loadStudents()
-    } catch (error) {
-      console.error('Delete failed:', error)
-    }
-  }).catch(() => {})
-}
-
-const handleSubmit = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    submitting.value = true
-    try {
-      if (isEdit.value) {
-        await studentApi.update(formData.id, formData)
-        ElMessage.success('更新成功')
-      } else {
-        await studentApi.create(formData)
-        ElMessage.success('添加成功')
-      }
-      dialogVisible.value = false
-      loadStudents()
-    } catch (error) {
-      console.error('Submit failed:', error)
-    } finally {
-      submitting.value = false
-    }
-  })
-}
-
-const resetForm = () => {
-  Object.assign(formData, {
-    id: null,
-    name: '',
-    gender: '男',
-    age: 18,
-    email: '',
-    phone: '',
-    enrollmentDate: '',
-    clazzId: null
-  })
-  formRef.value?.resetFields()
 }
 
 onMounted(() => {
