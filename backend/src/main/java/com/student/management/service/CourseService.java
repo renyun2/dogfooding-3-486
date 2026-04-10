@@ -59,7 +59,7 @@ public class CourseService {
 
         existing.setName(course.getName());
         existing.setCredits(course.getCredits());
-        existing.setInstructor(course.getInstructor());
+        existing.setTeacherId(course.getTeacherId());
         existing.setDescription(course.getDescription());
 
         Course updated = courseRepository.save(existing);

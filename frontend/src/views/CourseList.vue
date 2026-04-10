@@ -42,7 +42,7 @@
             <el-tag type="success">{{ row.credits }} 学分</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="instructor" label="授课教师" width="120" />
+        <el-table-column prop="teacher.name" label="授课教师" width="120" />
         <el-table-column prop="description" label="课程描述" min-width="200" show-overflow-tooltip />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
@@ -88,8 +88,15 @@
           <el-input-number v-model="formData.credits" :min="1" :max="10" />
         </el-form-item>
         
-        <el-form-item label="授课教师" prop="instructor">
-          <el-input v-model="formData.instructor" placeholder="请输入教师姓名" />
+        <el-form-item label="授课教师" prop="teacherId">
+          <el-select v-model="formData.teacherId" placeholder="请选择授课教师" style="width: 100%">
+            <el-option
+              v-for="item in teachers"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="课程描述" prop="description">
@@ -118,11 +125,13 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Reading, Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { courseApi } from '../api/course'
+import { teacherApi } from '../api/teacher'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const loading = ref(false)
 const submitting = ref(false)
 const courses = ref([])
+const teachers = ref([])
 const searchQuery = ref('')
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -132,7 +141,7 @@ const formData = reactive({
   id: null,
   name: '',
   credits: 3,
-  instructor: '',
+  teacherId: null,
   description: ''
 })
 
@@ -144,9 +153,8 @@ const rules = {
   credits: [
     { required: true, message: '请输入学分', trigger: 'blur' }
   ],
-  instructor: [
-    { required: true, message: '请输入教师姓名', trigger: 'blur' },
-    { min: 2, max: 50, message: '教师姓名长度在 2 到 50 个字符', trigger: 'blur' }
+  teacherId: [
+    { required: true, message: '请选择授课教师', trigger: 'change' }
   ],
   description: [
     { max: 500, message: '课程描述不能超过 500 个字符', trigger: 'blur' }
@@ -162,6 +170,15 @@ const loadCourses = async () => {
     console.error('Failed to load courses:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const loadTeachers = async () => {
+  try {
+    const res = await teacherApi.getAll()
+    teachers.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load teachers:', error)
   }
 }
 
@@ -245,7 +262,7 @@ const resetForm = () => {
     id: null,
     name: '',
     credits: 3,
-    instructor: '',
+    teacherId: null,
     description: ''
   })
   formRef.value?.resetFields()
@@ -253,6 +270,7 @@ const resetForm = () => {
 
 onMounted(() => {
   loadCourses()
+  loadTeachers()
 })
 </script>
 
