@@ -7,7 +7,7 @@
     
     <!-- 统计卡片 -->
     <el-row :gutter="24" v-loading="loading">
-      <el-col :xs="24" :sm="12" :lg="8">
+      <el-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card" style="border-top: 4px solid #667eea;">
           <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <el-icon :size="32"><User /></el-icon>
@@ -19,7 +19,7 @@
         </div>
       </el-col>
       
-      <el-col :xs="24" :sm="12" :lg="8">
+      <el-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card" style="border-top: 4px solid #48bb78;">
           <div class="stat-icon" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
             <el-icon :size="32"><Reading /></el-icon>
@@ -31,7 +31,19 @@
         </div>
       </el-col>
       
-      <el-col :xs="24" :sm="12" :lg="8">
+      <el-col :xs="24" :sm="12" :lg="6">
+        <div class="stat-card" style="border-top: 4px solid #4299e1;">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);">
+            <el-icon :size="32"><Avatar /></el-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">教师总数</div>
+            <div class="stat-value">{{ stats.teacherCount }}</div>
+          </div>
+        </div>
+      </el-col>
+      
+      <el-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card" style="border-top: 4px solid #ed8936;">
           <div class="stat-icon" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
             <el-icon :size="32"><Memo /></el-icon>
@@ -52,6 +64,12 @@
           <el-button type="primary" size="large" style="width: 100%;" @click="$router.push('/students')">
             <el-icon><Plus /></el-icon>
             添加学生
+          </el-button>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="6">
+          <el-button type="info" size="large" style="width: 100%;" @click="$router.push('/teachers')">
+            <el-icon><Plus /></el-icon>
+            添加教师
           </el-button>
         </el-col>
         <el-col :xs="24" :sm="12" :md="6">
@@ -79,15 +97,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { DataAnalysis, User, Reading, Memo, Plus, Edit, Refresh } from '@element-plus/icons-vue'
+import { DataAnalysis, User, Reading, Memo, Plus, Edit, Refresh, Avatar } from '@element-plus/icons-vue'
 import { studentApi } from '../api/student'
 import { courseApi } from '../api/course'
 import { gradeApi } from '../api/grade'
+import { teacherApi } from '../api/teacher'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
 const stats = ref({
   studentCount: 0,
+  teacherCount: 0,
   courseCount: 0,
   gradeCount: 0
 })
@@ -95,14 +115,16 @@ const stats = ref({
 const loadStats = async () => {
   loading.value = true
   try {
-    const [studentRes, courseRes, gradeRes] = await Promise.all([
+    const [studentRes, teacherRes, courseRes, gradeRes] = await Promise.all([
       studentApi.getCount(),
+      teacherApi.getCount(),
       courseApi.getCount(),
       gradeApi.getStatistics()
     ])
     
     stats.value = {
       studentCount: studentRes.data || 0,
+      teacherCount: teacherRes.data || 0,
       courseCount: courseRes.data || 0,
       gradeCount: gradeRes.data?.totalGrades || 0
     }

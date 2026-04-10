@@ -30,10 +30,12 @@ public class Course {
     @Column(nullable = false)
     private Integer credits;
 
-    @NotBlank(message = "授课教师不能为空")
-    @Size(min = 2, max = 50, message = "教师姓名长度必须在2-50之间")
-    @Column(nullable = false, length = 50)
-    private String instructor;
+    @Column(name = "teacher_id")
+    private Long teacherId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Teacher teacher;
 
     @Size(max = 500, message = "课程描述不能超过500字")
     @Column(length = 500)
