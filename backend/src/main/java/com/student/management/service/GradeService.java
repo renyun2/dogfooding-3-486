@@ -2,8 +2,8 @@ package com.student.management.service;
 
 import com.student.management.entity.Grade;
 import com.student.management.repository.GradeRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,14 +11,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class GradeService {
+
+    private static final Logger log = LoggerFactory.getLogger(GradeService.class);
 
     private final GradeRepository gradeRepository;
     private final StudentService studentService;
     private final CourseService courseService;
+
+    public GradeService(GradeRepository gradeRepository, StudentService studentService, CourseService courseService) {
+        this.gradeRepository = gradeRepository;
+        this.studentService = studentService;
+        this.courseService = courseService;
+    }
 
     public List<Grade> getAllGrades() {
         log.info("Fetching all grades");

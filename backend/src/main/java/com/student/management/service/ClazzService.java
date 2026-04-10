@@ -2,19 +2,23 @@ package com.student.management.service;
 
 import com.student.management.entity.Clazz;
 import com.student.management.repository.ClazzRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ClazzService {
 
+    private static final Logger log = LoggerFactory.getLogger(ClazzService.class);
+
     private final ClazzRepository clazzRepository;
+
+    public ClazzService(ClazzRepository clazzRepository) {
+        this.clazzRepository = clazzRepository;
+    }
 
     public List<Clazz> getAllClasses() {
         log.info("Fetching all classes");

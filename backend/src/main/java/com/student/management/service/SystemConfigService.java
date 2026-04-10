@@ -2,12 +2,10 @@ package com.student.management.service;
 
 import com.student.management.entity.SystemConfig;
 import com.student.management.repository.SystemConfigRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class SystemConfigService {
 
     private final SystemConfigRepository repository;
@@ -16,6 +14,10 @@ public class SystemConfigService {
     private String defaultAdminPassword;
 
     private static final String KEY_ADMIN_PASSWORD = "admin_password";
+
+    public SystemConfigService(SystemConfigRepository repository) {
+        this.repository = repository;
+    }
 
     public String getAdminPassword() {
         return repository.findByConfigKey(KEY_ADMIN_PASSWORD)

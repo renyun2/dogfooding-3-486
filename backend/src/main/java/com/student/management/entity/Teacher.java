@@ -11,13 +11,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "students")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "grades" })
-public class Student {
+@Table(name = "teachers")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "courses" })
+public class Teacher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "工号不能为空")
+    @Size(min = 4, max = 20, message = "工号长度必须在4-20之间")
+    @Column(nullable = false, unique = true, length = 20)
+    private String teacherNo;
 
     @NotBlank(message = "姓名不能为空")
     @Size(min = 2, max = 50, message = "姓名长度必须在2-50之间")
@@ -29,35 +34,32 @@ public class Student {
     @Column(nullable = false, length = 10)
     private String gender;
 
-    @NotNull(message = "年龄不能为空")
-    @Min(value = 1, message = "年龄必须大于0")
-    @Max(value = 150, message = "年龄不能超过150")
-    @Column(nullable = false)
-    private Integer age;
+    @NotBlank(message = "职称不能为空")
+    @Size(min = 2, max = 30, message = "职称长度必须在2-30之间")
+    @Column(nullable = false, length = 30)
+    private String title;
+
+    @NotBlank(message = "所属院系不能为空")
+    @Size(min = 2, max = 100, message = "所属院系长度必须在2-100之间")
+    @Column(nullable = false, length = 100)
+    private String department;
+
+    @NotBlank(message = "联系电话不能为空")
+    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
+    @Column(nullable = false, length = 20)
+    private String phone;
 
     @NotBlank(message = "邮箱不能为空")
     @Email(message = "邮箱格式不正确")
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @NotBlank(message = "手机号不能为空")
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
-    @Column(nullable = false, length = 20)
-    private String phone;
+    @NotNull(message = "入职日期不能为空")
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
 
-    @NotNull(message = "入学日期不能为空")
-    @Column(name = "enrollment_date", nullable = false)
-    private LocalDate enrollmentDate;
-
-    @Column(name = "clazz_id")
-    private Long clazzId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clazz_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Clazz clazz;
-
-    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Grade> grades;
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.SET_NULL)
+    private List<Course> courses;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -73,6 +75,14 @@ public class Student {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getTeacherNo() {
+        return teacherNo;
+    }
+
+    public void setTeacherNo(String teacherNo) {
+        this.teacherNo = teacherNo;
     }
 
     public String getName() {
@@ -91,20 +101,20 @@ public class Student {
         this.gender = gender;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getTitle() {
+        return title;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getEmail() {
-        return email;
+    public String getDepartment() {
+        return department;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getPhone() {
@@ -115,36 +125,28 @@ public class Student {
         this.phone = phone;
     }
 
-    public LocalDate getEnrollmentDate() {
-        return enrollmentDate;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEnrollmentDate(LocalDate enrollmentDate) {
-        this.enrollmentDate = enrollmentDate;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Long getClazzId() {
-        return clazzId;
+    public LocalDate getHireDate() {
+        return hireDate;
     }
 
-    public void setClazzId(Long clazzId) {
-        this.clazzId = clazzId;
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = hireDate;
     }
 
-    public Clazz getClazz() {
-        return clazz;
+    public List<Course> getCourses() {
+        return courses;
     }
 
-    public void setClazz(Clazz clazz) {
-        this.clazz = clazz;
-    }
-
-    public List<Grade> getGrades() {
-        return grades;
-    }
-
-    public void setGrades(List<Grade> grades) {
-        this.grades = grades;
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
     }
 
     public LocalDateTime getCreatedAt() {

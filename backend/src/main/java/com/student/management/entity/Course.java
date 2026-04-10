@@ -3,16 +3,15 @@ package com.student.management.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
 @Entity
 @Table(name = "courses")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "grades" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "grades", "teacher" })
 public class Course {
 
     @Id
@@ -39,8 +38,15 @@ public class Course {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "teacher_id")
+    private Long teacherId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Teacher teacher;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private java.util.List<Grade> grades;
+    private List<Grade> grades;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -49,4 +55,84 @@ public class Course {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getCredits() {
+        return credits;
+    }
+
+    public void setCredits(Integer credits) {
+        this.credits = credits;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getTeacherId() {
+        return teacherId;
+    }
+
+    public void setTeacherId(Long teacherId) {
+        this.teacherId = teacherId;
+    }
+
+    public Teacher getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
+    }
+
+    public List<Grade> getGrades() {
+        return grades;
+    }
+
+    public void setGrades(List<Grade> grades) {
+        this.grades = grades;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

@@ -4,7 +4,6 @@ import com.student.management.service.SystemConfigService;
 import com.student.management.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @Tag(name = "认证管理", description = "管理员登录、退出与密码修改接口")
 public class AuthController {
@@ -25,6 +23,11 @@ public class AuthController {
 
     @Value("${admin.username}")
     private String adminUsername;
+
+    public AuthController(TokenService tokenService, SystemConfigService systemConfigService) {
+        this.tokenService = tokenService;
+        this.systemConfigService = systemConfigService;
+    }
 
     @PostMapping("/login")
     @Operation(summary = "管理员登录")
