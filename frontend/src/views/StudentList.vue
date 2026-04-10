@@ -141,22 +141,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { User, Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { studentApi } from '../api/student'
 import { getAllClasses } from '../api/clazz'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { useCrud } from '../composables/useCrud'
+import { useApi } from '../composables/useApi'
+import { ElMessage } from 'element-plus'
 
-const loading = ref(false)
-const submitting = ref(false)
-const students = ref([])
 const clazzes = ref([])
 const searchQuery = ref('')
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const formRef = ref(null)
+const { loading: searchLoading, execute: executeSearch } = useApi()
 
-const formData = reactive({
+const defaultFormData = {
   id: null,
   name: '',
   gender: '男',
@@ -165,6 +162,29 @@ const formData = reactive({
   phone: '',
   enrollmentDate: '',
   clazzId: null
+}
+
+const {
+  loading,
+  submitting,
+  dataList: students,
+  dialogVisible,
+  isEdit,
+  formRef,
+  formData,
+  loadData: loadStudents,
+  handleAdd,
+  handleEdit,
+  handleDelete: crudDelete,
+  handleSubmit
+} = useCrud(studentApi, {
+  defaultFormData,
+  confirmMessage: '确定要删除学生 "{name}" 吗？该操作将同时删除其所有成绩记录！',
+  successMessages: {
+    create: '添加成功',
+    update: '更新成功',
+    delete: '删除成功'
+  }
 })
 
 const rules = {
@@ -194,18 +214,6 @@ const rules = {
   ]
 }
 
-const loadStudents = async () => {
-  loading.value = true
-  try {
-    const res = await studentApi.getAll()
-    students.value = res.data || []
-  } catch (error) {
-    console.error('Failed to load students:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
 const loadClasses = async () => {
   try {
     const res = await getAllClasses()
@@ -220,88 +228,16 @@ const handleSearch = async () => {
     loadStudents()
     return
   }
-  
-  loading.value = true
-  try {
+
+  await executeSearch(async () => {
     const res = await studentApi.search(searchQuery.value)
     students.value = res.data || []
     ElMessage.success(`找到 ${students.value.length} 条记录`)
-  } catch (error) {
-    console.error('Search failed:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleAdd = () => {
-  isEdit.value = false
-  resetForm()
-  dialogVisible.value = true
-}
-
-const handleEdit = (row) => {
-  isEdit.value = true
-  Object.assign(formData, row)
-  dialogVisible.value = true
+  })
 }
 
 const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除学生 "${row.name}" 吗？该操作将同时删除其所有成绩记录！`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  ).then(async () => {
-    try {
-      await studentApi.delete(row.id)
-      ElMessage.success('删除成功')
-      loadStudents()
-    } catch (error) {
-      console.error('Delete failed:', error)
-    }
-  }).catch(() => {})
-}
-
-const handleSubmit = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    submitting.value = true
-    try {
-      if (isEdit.value) {
-        await studentApi.update(formData.id, formData)
-        ElMessage.success('更新成功')
-      } else {
-        await studentApi.create(formData)
-        ElMessage.success('添加成功')
-      }
-      dialogVisible.value = false
-      loadStudents()
-    } catch (error) {
-      console.error('Submit failed:', error)
-    } finally {
-      submitting.value = false
-    }
-  })
-}
-
-const resetForm = () => {
-  Object.assign(formData, {
-    id: null,
-    name: '',
-    gender: '男',
-    age: 18,
-    email: '',
-    phone: '',
-    enrollmentDate: '',
-    clazzId: null
-  })
-  formRef.value?.resetFields()
+  crudDelete(row, 'name')
 }
 
 onMounted(() => {

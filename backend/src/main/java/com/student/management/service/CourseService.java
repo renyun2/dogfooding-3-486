@@ -1,6 +1,8 @@
 package com.student.management.service;
 
 import com.student.management.entity.Course;
+import com.student.management.exception.BusinessException;
+import com.student.management.exception.ResourceNotFoundException;
 import com.student.management.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CourseService {
+public class CourseService implements ICourseService {
 
     private final CourseRepository courseRepository;
 
@@ -26,7 +28,7 @@ public class CourseService {
         return courseRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Course not found with id: {}", id);
-                    return new RuntimeException("课程不存在，ID: " + id);
+                    return new ResourceNotFoundException("课程不存在，ID: " + id);
                 });
     }
 
@@ -36,7 +38,7 @@ public class CourseService {
 
         if (courseRepository.existsByName(course.getName())) {
             log.error("Course name already exists: {}", course.getName());
-            throw new RuntimeException("课程名称已存在: " + course.getName());
+            throw new BusinessException("课程名称已存在: " + course.getName());
         }
 
         Course saved = courseRepository.save(course);
@@ -50,11 +52,10 @@ public class CourseService {
 
         Course existing = getCourseById(id);
 
-        // Check name uniqueness if changed
         if (!existing.getName().equals(course.getName())
                 && courseRepository.existsByName(course.getName())) {
             log.error("Course name already exists: {}", course.getName());
-            throw new RuntimeException("课程名称已存在: " + course.getName());
+            throw new BusinessException("课程名称已存在: " + course.getName());
         }
 
         existing.setName(course.getName());
