@@ -88,8 +88,22 @@
           <el-input-number v-model="formData.credits" :min="1" :max="10" />
         </el-form-item>
         
-        <el-form-item label="授课教师" prop="instructor">
-          <el-input v-model="formData.instructor" placeholder="请输入教师姓名" />
+        <el-form-item label="授课教师" prop="teacherId">
+          <el-select 
+            v-model="formData.teacherId" 
+            placeholder="请选择授课教师" 
+            clearable
+            filterable
+            style="width: 100%"
+            @change="handleTeacherChange"
+          >
+            <el-option
+              v-for="teacher in teachers"
+              :key="teacher.id"
+              :label="`${teacher.name} (${teacher.employeeId})`"
+              :value="teacher.id"
+            />
+          </el-select>
         </el-form-item>
         
         <el-form-item label="课程描述" prop="description">
@@ -118,11 +132,13 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Reading, Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { courseApi } from '../api/course'
+import { teacherApi } from '../api/teacher'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const loading = ref(false)
 const submitting = ref(false)
 const courses = ref([])
+const teachers = ref([])
 const searchQuery = ref('')
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -133,6 +149,7 @@ const formData = reactive({
   name: '',
   credits: 3,
   instructor: '',
+  teacherId: null,
   description: ''
 })
 
@@ -143,10 +160,6 @@ const rules = {
   ],
   credits: [
     { required: true, message: '请输入学分', trigger: 'blur' }
-  ],
-  instructor: [
-    { required: true, message: '请输入教师姓名', trigger: 'blur' },
-    { min: 2, max: 50, message: '教师姓名长度在 2 到 50 个字符', trigger: 'blur' }
   ],
   description: [
     { max: 500, message: '课程描述不能超过 500 个字符', trigger: 'blur' }
@@ -162,6 +175,15 @@ const loadCourses = async () => {
     console.error('Failed to load courses:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const loadTeachers = async () => {
+  try {
+    const res = await teacherApi.getAll()
+    teachers.value = res.data || []
+  } catch (error) {
+    console.error('Failed to load teachers:', error)
   }
 }
 
@@ -191,7 +213,14 @@ const handleAdd = () => {
 
 const handleEdit = (row) => {
   isEdit.value = true
-  Object.assign(formData, row)
+  Object.assign(formData, {
+    id: row.id,
+    name: row.name,
+    credits: row.credits,
+    instructor: row.instructor || '',
+    teacherId: row.teacher ? row.teacher.id : null,
+    description: row.description
+  })
   dialogVisible.value = true
 }
 
@@ -215,6 +244,17 @@ const handleDelete = (row) => {
   }).catch(() => {})
 }
 
+const handleTeacherChange = (teacherId) => {
+  if (teacherId) {
+    const teacher = teachers.value.find(t => t.id === teacherId)
+    if (teacher) {
+      formData.instructor = teacher.name
+    }
+  } else {
+    formData.instructor = ''
+  }
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
   
@@ -223,11 +263,19 @@ const handleSubmit = async () => {
     
     submitting.value = true
     try {
+      const submitData = {
+        name: formData.name,
+        credits: formData.credits,
+        instructor: formData.instructor,
+        description: formData.description,
+        teacher: formData.teacherId ? { id: formData.teacherId } : null
+      }
+      
       if (isEdit.value) {
-        await courseApi.update(formData.id, formData)
+        await courseApi.update(formData.id, submitData)
         ElMessage.success('更新成功')
       } else {
-        await courseApi.create(formData)
+        await courseApi.create(submitData)
         ElMessage.success('添加成功')
       }
       dialogVisible.value = false
@@ -246,6 +294,7 @@ const resetForm = () => {
     name: '',
     credits: 3,
     instructor: '',
+    teacherId: null,
     description: ''
   })
   formRef.value?.resetFields()
@@ -253,6 +302,7 @@ const resetForm = () => {
 
 onMounted(() => {
   loadCourses()
+  loadTeachers()
 })
 </script>
 

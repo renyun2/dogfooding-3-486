@@ -1,7 +1,9 @@
 package com.student.management.service;
 
 import com.student.management.entity.Course;
+import com.student.management.entity.Teacher;
 import com.student.management.repository.CourseRepository;
+import com.student.management.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final TeacherRepository teacherRepository;
 
     public List<Course> getAllCourses() {
         log.info("Fetching all courses");
@@ -39,6 +42,13 @@ public class CourseService {
             throw new RuntimeException("课程名称已存在: " + course.getName());
         }
 
+        if (course.getTeacher() != null && course.getTeacher().getId() != null) {
+            Teacher teacher = teacherRepository.findById(course.getTeacher().getId())
+                    .orElseThrow(() -> new RuntimeException("教师不存在，ID: " + course.getTeacher().getId()));
+            course.setTeacher(teacher);
+            course.setInstructor(teacher.getName());
+        }
+
         Course saved = courseRepository.save(course);
         log.info("Course created successfully with id: {}", saved.getId());
         return saved;
@@ -50,7 +60,6 @@ public class CourseService {
 
         Course existing = getCourseById(id);
 
-        // Check name uniqueness if changed
         if (!existing.getName().equals(course.getName())
                 && courseRepository.existsByName(course.getName())) {
             log.error("Course name already exists: {}", course.getName());
@@ -59,8 +68,17 @@ public class CourseService {
 
         existing.setName(course.getName());
         existing.setCredits(course.getCredits());
-        existing.setInstructor(course.getInstructor());
         existing.setDescription(course.getDescription());
+
+        if (course.getTeacher() != null && course.getTeacher().getId() != null) {
+            Teacher teacher = teacherRepository.findById(course.getTeacher().getId())
+                    .orElseThrow(() -> new RuntimeException("教师不存在，ID: " + course.getTeacher().getId()));
+            existing.setTeacher(teacher);
+            existing.setInstructor(teacher.getName());
+        } else {
+            existing.setTeacher(null);
+            existing.setInstructor(course.getInstructor());
+        }
 
         Course updated = courseRepository.save(existing);
         log.info("Course updated successfully with id: {}", updated.getId());

@@ -15,6 +15,10 @@
             <el-icon><School /></el-icon>
             <span>班级管理</span>
           </router-link>
+          <router-link to="/teachers" class="nav-item">
+            <el-icon><Avatar /></el-icon>
+            <span>教师管理</span>
+          </router-link>
           <router-link to="/students" class="nav-item">
             <el-icon><User /></el-icon>
             <span>学生管理</span>
@@ -85,7 +89,7 @@
 import { computed, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { School, User, Reading, Monitor, TrendCharts, UserFilled, SwitchButton, Key } from '@element-plus/icons-vue'
+import { School, User, Reading, Monitor, TrendCharts, UserFilled, SwitchButton, Key, Avatar } from '@element-plus/icons-vue'
 import { logout, changePassword } from './api/auth'
 
 const router = useRouter()

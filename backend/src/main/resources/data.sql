@@ -4,7 +4,6 @@ INSERT INTO classes (name, description, created_at, updated_at) VALUES
 ('人工智能 2024-03', '人工智能实验班', NOW(), NOW())
 ON DUPLICATE KEY UPDATE updated_at = NOW();
 
--- 然后插入学生数据，并关联班级
 INSERT INTO students (name, gender, age, email, phone, enrollment_date, clazz_id, created_at, updated_at) VALUES
 ('张三', '男', 20, 'zhangsan@example.com', '13800138001', '2024-09-01', 1, NOW(), NOW()),
 ('李四', '女', 19, 'lisi@example.com', '13800138002', '2024-09-01', 1, NOW(), NOW()),
@@ -18,16 +17,28 @@ INSERT INTO students (name, gender, age, email, phone, enrollment_date, clazz_id
 ('王十二', '女', 19, 'wang12@example.com', '13800138010', '2024-09-01', 2, NOW(), NOW())
 ON DUPLICATE KEY UPDATE updated_at = NOW();
 
--- 插入课程数据
-INSERT INTO courses (name, credits, instructor, description) VALUES
-('高等数学', 4, '张教授', '微积分、线性代数等数学基础课程'),
-('大学英语', 3, '李老师', '英语听说读写综合能力培养'),
-('计算机基础', 3, '王教授', 'Python程序设计和算法基础'),
-('数据结构', 4, '赵教授', '线性表、树、图等数据结构及算法'),
-('数据库原理', 3, '钱教授', '关系型数据库设计与SQL查询'),
-('Web开发', 3, '孙老师', 'HTML、CSS、JavaScript全栈开发'),
-('软件工程', 3, '周教授', '软件开发生命周期与项目管理')
-ON DUPLICATE KEY UPDATE name=name;
+INSERT INTO teachers (employee_id, name, gender, title, department, phone, email, hire_date, created_at, updated_at) VALUES
+('T001', '张明华', '男', '教授', '数学与统计学院', '13900139001', 'zhangmh@university.edu.cn', '2010-09-01', NOW(), NOW()),
+('T002', '李芳', '女', '副教授', '外国语学院', '13900139002', 'lifang@university.edu.cn', '2012-09-01', NOW(), NOW()),
+('T003', '王建国', '男', '教授', '计算机科学与技术学院', '13900139003', 'wangjg@university.edu.cn', '2008-09-01', NOW(), NOW()),
+('T004', '赵雪梅', '女', '副教授', '计算机科学与技术学院', '13900139004', 'zhaoxm@university.edu.cn', '2015-09-01', NOW(), NOW()),
+('T005', '钱伟', '男', '教授', '计算机科学与技术学院', '13900139005', 'qianwei@university.edu.cn', '2011-09-01', NOW(), NOW()),
+('T006', '孙丽', '女', '讲师', '软件工程学院', '13900139006', 'sunli@university.edu.cn', '2018-09-01', NOW(), NOW()),
+('T007', '周强', '男', '教授', '软件工程学院', '13900139007', 'zhouqiang@university.edu.cn', '2009-09-01', NOW(), NOW()),
+('T008', '吴敏', '女', '副教授', '人工智能学院', '13900139008', 'wumin@university.edu.cn', '2014-09-01', NOW(), NOW()),
+('T009', '郑涛', '男', '讲师', '人工智能学院', '13900139009', 'zhengtao@university.edu.cn', '2020-09-01', NOW(), NOW()),
+('T010', '陈静', '女', '特聘教授', '人工智能学院', '13900139010', 'chenjing@university.edu.cn', '2022-09-01', NOW(), NOW())
+ON DUPLICATE KEY UPDATE updated_at = NOW();
+
+INSERT INTO courses (name, credits, instructor, description, teacher_id) VALUES
+('高等数学', 4, '张明华', '微积分、线性代数等数学基础课程', 1),
+('大学英语', 3, '李芳', '英语听说读写综合能力培养', 2),
+('计算机基础', 3, '王建国', 'Python程序设计和算法基础', 3),
+('数据结构', 4, '赵雪梅', '线性表、树、图等数据结构及算法', 4),
+('数据库原理', 3, '钱伟', '关系型数据库设计与SQL查询', 5),
+('Web开发', 3, '孙丽', 'HTML、CSS、JavaScript全栈开发', 6),
+('软件工程', 3, '周强', '软件开发生命周期与项目管理', 7)
+ON DUPLICATE KEY UPDATE instructor=VALUES(instructor), teacher_id=VALUES(teacher_id);
 
 -- 插入成绩数据
 INSERT INTO grades (student_id, course_id, score) VALUES
