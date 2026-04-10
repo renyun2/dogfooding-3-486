@@ -1,19 +1,21 @@
 package com.student.management.controller;
 
+import com.student.management.common.Result;
+import com.student.management.dto.CourseDTO;
 import com.student.management.entity.Course;
-import com.student.management.service.CourseService;
+import com.student.management.service.ICourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * 课程管理控制器
+ */
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
@@ -21,83 +23,56 @@ import java.util.Map;
 @Tag(name = "课程管理", description = "课程信息的增删改查接口")
 public class CourseController {
 
-    private final CourseService courseService;
+    private final ICourseService courseService;
 
     @GetMapping
     @Operation(summary = "获取所有课程")
-    public ResponseEntity<Map<String, Object>> getAllCourses() {
+    public ResponseEntity<Result<List<Course>>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", courses);
-        return ResponseEntity.ok(response);
+        return Result.success("查询成功", courses).toResponseEntity();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取课程")
-    public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id) {
+    public ResponseEntity<Result<Course>> getCourseById(@PathVariable Long id) {
         Course course = courseService.getCourseById(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", course);
-        return ResponseEntity.ok(response);
+        return Result.success("查询成功", course).toResponseEntity();
     }
 
     @PostMapping
     @Operation(summary = "创建新课程")
-    public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course) {
-        Course created = courseService.createCourse(course);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 201);
-        response.put("message", "创建成功");
-        response.put("data", created);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<Result<Course>> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
+        Course created = courseService.createCourse(courseDTO);
+        return Result.created(created).toResponseEntity();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新课程信息")
-    public ResponseEntity<Map<String, Object>> updateCourse(
+    public ResponseEntity<Result<Course>> updateCourse(
             @PathVariable Long id,
-            @Valid @RequestBody Course course) {
-        Course updated = courseService.updateCourse(id, course);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "更新成功");
-        response.put("data", updated);
-        return ResponseEntity.ok(response);
+            @Valid @RequestBody CourseDTO courseDTO) {
+        Course updated = courseService.updateCourse(id, courseDTO);
+        return Result.success("更新成功", updated).toResponseEntity();
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除课程")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long id) {
+    public ResponseEntity<Result<Void>> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "删除成功");
-        return ResponseEntity.ok(response);
+        return Result.<Void>success("删除成功").toResponseEntity();
     }
 
     @GetMapping("/search")
     @Operation(summary = "按名称搜索课程")
-    public ResponseEntity<Map<String, Object>> searchCourses(@RequestParam String name) {
+    public ResponseEntity<Result<List<Course>>> searchCourses(@RequestParam String name) {
         List<Course> courses = courseService.searchCourses(name);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "搜索成功");
-        response.put("data", courses);
-        return ResponseEntity.ok(response);
+        return Result.success("搜索成功", courses).toResponseEntity();
     }
 
     @GetMapping("/count")
     @Operation(summary = "获取课程总数")
-    public ResponseEntity<Map<String, Object>> getCourseCount() {
+    public ResponseEntity<Result<Long>> getCourseCount() {
         long count = courseService.getTotalCount();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", count);
-        return ResponseEntity.ok(response);
+        return Result.success("查询成功", count).toResponseEntity();
     }
 }
