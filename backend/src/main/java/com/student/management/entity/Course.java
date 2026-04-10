@@ -1,5 +1,6 @@
 package com.student.management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "courses")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "grades" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "grades", "teacher" })
 public class Course {
 
     @Id
@@ -30,14 +31,23 @@ public class Course {
     @Column(nullable = false)
     private Integer credits;
 
-    @NotBlank(message = "授课教师不能为空")
-    @Size(min = 2, max = 50, message = "教师姓名长度必须在2-50之间")
-    @Column(nullable = false, length = 50)
+    @Size(max = 50, message = "教师姓名长度必须在2-50之间")
+    @Column(length = 50)
     private String instructor;
 
     @Size(max = 500, message = "课程描述不能超过500字")
     @Column(length = 500)
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    @JsonIgnore
+    private Teacher teacher;
+
+    @Transient
+    public String getTeacherName() {
+        return teacher != null ? teacher.getName() : instructor;
+    }
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private java.util.List<Grade> grades;
