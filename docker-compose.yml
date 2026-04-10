@@ -23,6 +23,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.wagon.http.ssl.insecure=true
     container_name: student-management-backend
     ports:
       - "8247:8080"

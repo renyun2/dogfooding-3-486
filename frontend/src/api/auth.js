@@ -1,13 +1,23 @@
 import request from './request'
 
-export const login = (username, password) => {
-    return request.post('/api/auth/login', { username, password })
+/**
+ * 认证相关API
+ */
+export const authApi = {
+    // 登录
+    login(credentials) {
+        return request.post('/api/auth/login', credentials)
+    },
+
+    // 登出
+    logout() {
+        return request.post('/api/auth/logout')
+    },
+
+    // 修改密码
+    changePassword(data) {
+        return request.put('/api/auth/password', data)
+    }
 }
 
-export const logout = () => {
-    return request.post('/api/auth/logout')
-}
-
-export const changePassword = (oldPassword, newPassword) => {
-    return request.put('/api/auth/password', { oldPassword, newPassword })
-}
+export default authApi

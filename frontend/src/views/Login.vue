@@ -55,7 +55,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { School, User, Lock } from '@element-plus/icons-vue'
-import { login } from '../api/auth'
+import { authApi } from '../api/auth'
 
 const router = useRouter()
 const formRef = ref(null)
@@ -77,9 +77,9 @@ const handleLogin = async () => {
     if (!valid) return
     loading.value = true
     try {
-      const res = await login(form.username, form.password)
-      localStorage.setItem('token', res.token)
-      localStorage.setItem('username', res.username)
+      const res = await authApi.login({ username: form.username, password: form.password })
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('username', res.data.username)
       ElMessage.success('登录成功，欢迎回来！')
       router.push('/')
     } catch {

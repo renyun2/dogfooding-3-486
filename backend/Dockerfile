@@ -2,18 +2,18 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# 拷贝 Maven 配置文件
-COPY settings.xml /usr/share/maven/ref/settings.xml
+# 拷贝 Maven 配置文件和 pom.xml
+COPY settings.xml /root/.m2/settings.xml
 COPY pom.xml .
 
 # 预下载依赖
-RUN mvn -s /usr/share/maven/ref/settings.xml dependency:go-offline
+RUN mvn dependency:go-offline -DskipTests || true
 
 # 拷贝源代码
 COPY src ./src
 
 # 打包应用
-RUN mvn -s /usr/share/maven/ref/settings.xml package -DskipTests
+RUN mvn package -DskipTests
 
 # 运行阶段
 FROM eclipse-temurin:17-jre

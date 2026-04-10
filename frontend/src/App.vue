@@ -86,7 +86,7 @@ import { computed, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { School, User, Reading, Monitor, TrendCharts, UserFilled, SwitchButton, Key } from '@element-plus/icons-vue'
-import { logout, changePassword } from './api/auth'
+import { authApi } from './api/auth'
 
 const router = useRouter()
 
@@ -101,7 +101,7 @@ const handleLogout = async () => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await logout()
+    await authApi.logout()
   } catch {
     // 无论接口成功与否都清除本地状态
   } finally {
@@ -151,7 +151,7 @@ const handleChangePassword = async () => {
     if (!valid) return
     pwdLoading.value = true
     try {
-      await changePassword(pwdForm.oldPassword, pwdForm.newPassword)
+      await authApi.changePassword({ oldPassword: pwdForm.oldPassword, newPassword: pwdForm.newPassword })
       ElMessage.success('密码修改成功，请重新登录')
       pwdDialogVisible.value = false
       localStorage.removeItem('token')
