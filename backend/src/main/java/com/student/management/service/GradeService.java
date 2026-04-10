@@ -1,6 +1,8 @@
 package com.student.management.service;
 
 import com.student.management.entity.Grade;
+import com.student.management.exception.BusinessException;
+import com.student.management.exception.ResourceNotFoundException;
 import com.student.management.repository.GradeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GradeService {
+public class GradeService implements IGradeService {
 
     private final GradeRepository gradeRepository;
     private final StudentService studentService;
@@ -30,7 +32,7 @@ public class GradeService {
         return gradeRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Grade not found with id: {}", id);
-                    return new RuntimeException("成绩记录不存在，ID: " + id);
+                    return new ResourceNotFoundException("成绩记录不存在，ID: " + id);
                 });
     }
 
@@ -49,16 +51,14 @@ public class GradeService {
         log.info("Creating new grade for student {} and course {}",
                 grade.getStudentId(), grade.getCourseId());
 
-        // Validate student and course exist
         studentService.getStudentById(grade.getStudentId());
         courseService.getCourseById(grade.getCourseId());
 
-        // Check if grade already exists for this student-course combination
         if (gradeRepository.findByStudentIdAndCourseId(
                 grade.getStudentId(), grade.getCourseId()).isPresent()) {
             log.error("Grade already exists for student {} and course {}",
                     grade.getStudentId(), grade.getCourseId());
-            throw new RuntimeException("该学生在此课程中已有成绩记录");
+            throw new BusinessException("该学生在此课程中已有成绩记录");
         }
 
         Grade saved = gradeRepository.save(grade);

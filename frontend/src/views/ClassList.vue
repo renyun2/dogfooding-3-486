@@ -75,23 +75,38 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue'
 import { School, Plus, Search, Edit, Delete } from '@element-plus/icons-vue'
-import { getAllClasses, createClass, updateClass, deleteClass } from '../api/clazz'
+import { clazzApi } from '../api/clazz'
+import { useCrud } from '../composables/useCrud'
 
-const loading = ref(false)
-const submitLoading = ref(false)
-const classes = ref([])
 const searchQuery = ref('')
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const formRef = ref(null)
 
-const form = reactive({
-  id: null,
-  name: '',
-  description: ''
+const {
+  loading,
+  submitting,
+  dataList: classes,
+  dialogVisible,
+  isEdit,
+  formRef,
+  formData: form,
+  loadData: fetchClasses,
+  handleAdd,
+  handleEdit,
+  handleDelete: crudDelete,
+  handleSubmit: submitForm
+} = useCrud(clazzApi, {
+  defaultFormData: {
+    id: null,
+    name: '',
+    description: ''
+  },
+  confirmMessage: '确定要删除班级 "{name}" 吗？该操作将同时删除该班级的所有学生及其成绩记录！',
+  successMessages: {
+    create: '添加成功',
+    update: '更新成功',
+    delete: '删除成功'
+  }
 })
 
 const rules = {
@@ -109,76 +124,7 @@ const filteredClasses = computed(() => {
   )
 })
 
-const fetchClasses = async () => {
-  loading.value = true
-  try {
-    const res = await getAllClasses()
-    if (res.code === 200) {
-      classes.value = res.data
-    }
-  } catch (error) {
-    console.error('Fetch classes error:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleAdd = () => {
-  isEdit.value = false
-  Object.assign(form, { id: null, name: '', description: '' })
-  dialogVisible.value = true
-}
-
-const handleEdit = (row) => {
-  isEdit.value = true
-  Object.assign(form, { ...row })
-  dialogVisible.value = true
-}
-
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除班级 "${row.name}" 吗？该操作将同时删除该班级的所有学生及其成绩记录！`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  )
-    .then(async () => {
-      try {
-        const res = await deleteClass(row.id)
-        if (res.code === 200) {
-          ElMessage.success('删除成功')
-          fetchClasses()
-        }
-      } catch (error) {
-        console.error('Delete class error:', error)
-      }
-    })
-    .catch(() => {})
-}
-
-const submitForm = async () => {
-  if (!formRef.value) return
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitLoading.value = true
-      try {
-        const res = isEdit.value ? await updateClass(form.id, form) : await createClass(form)
-        if (res.code === 200 || res.code === 201) {
-          ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
-          dialogVisible.value = false
-          fetchClasses()
-        }
-      } catch (error) {
-        console.error('Submit class error:', error)
-      } finally {
-        submitLoading.value = false
-      }
-    }
-  })
-}
+const handleDelete = (row) => crudDelete(row, 'name')
 
 onMounted(() => {
   fetchClasses()

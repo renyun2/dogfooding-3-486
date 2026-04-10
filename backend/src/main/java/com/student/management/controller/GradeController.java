@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.common.Result;
 import com.student.management.entity.Grade;
 import com.student.management.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,112 +25,74 @@ public class GradeController {
 
     @GetMapping
     @Operation(summary = "获取所有成绩")
-    public ResponseEntity<Map<String, Object>> getAllGrades() {
+    public ResponseEntity<Result<List<Grade>>> getAllGrades() {
         List<Grade> grades = gradeService.getAllGrades();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", grades);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", grades));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取成绩")
-    public ResponseEntity<Map<String, Object>> getGradeById(@PathVariable Long id) {
+    public ResponseEntity<Result<Grade>> getGradeById(@PathVariable Long id) {
         Grade grade = gradeService.getGradeById(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", grade);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", grade));
     }
 
     @GetMapping("/student/{studentId}")
     @Operation(summary = "获取某学生的所有成绩")
-    public ResponseEntity<Map<String, Object>> getGradesByStudentId(@PathVariable Long studentId) {
+    public ResponseEntity<Result<List<Grade>>> getGradesByStudentId(@PathVariable Long studentId) {
         List<Grade> grades = gradeService.getGradesByStudentId(studentId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", grades);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", grades));
     }
 
     @GetMapping("/course/{courseId}")
     @Operation(summary = "获取某课程的所有成绩")
-    public ResponseEntity<Map<String, Object>> getGradesByCourseId(@PathVariable Long courseId) {
+    public ResponseEntity<Result<List<Grade>>> getGradesByCourseId(@PathVariable Long courseId) {
         List<Grade> grades = gradeService.getGradesByCourseId(courseId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", grades);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", grades));
     }
 
     @PostMapping
     @Operation(summary = "创建新成绩")
-    public ResponseEntity<Map<String, Object>> createGrade(@Valid @RequestBody Grade grade) {
+    public ResponseEntity<Result<Grade>> createGrade(@Valid @RequestBody Grade grade) {
         Grade created = gradeService.createGrade(grade);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 201);
-        response.put("message", "创建成功");
-        response.put("data", created);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Result.of(201, "创建成功", created));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新成绩")
-    public ResponseEntity<Map<String, Object>> updateGrade(
+    public ResponseEntity<Result<Grade>> updateGrade(
             @PathVariable Long id,
             @Valid @RequestBody Grade grade) {
         Grade updated = gradeService.updateGrade(id, grade);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "更新成功");
-        response.put("data", updated);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("更新成功", updated));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除成绩")
-    public ResponseEntity<Map<String, Object>> deleteGrade(@PathVariable Long id) {
+    public ResponseEntity<Result<Void>> deleteGrade(@PathVariable Long id) {
         gradeService.deleteGrade(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "删除成功");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.<Void>success("删除成功", null));
     }
 
     @GetMapping("/statistics")
     @Operation(summary = "获取成绩统计")
-    public ResponseEntity<Map<String, Object>> getStatistics() {
+    public ResponseEntity<Result<Map<String, Object>>> getStatistics() {
         Map<String, Object> stats = gradeService.getStatistics();
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", stats);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", stats));
     }
 
     @GetMapping("/average/student/{studentId}")
     @Operation(summary = "获取学生平均分")
-    public ResponseEntity<Map<String, Object>> getStudentAverageScore(@PathVariable Long studentId) {
+    public ResponseEntity<Result<Double>> getStudentAverageScore(@PathVariable Long studentId) {
         Double average = gradeService.getAverageScoreByStudent(studentId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", average);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", average));
     }
 
     @GetMapping("/average/course/{courseId}")
     @Operation(summary = "获取课程平均分")
-    public ResponseEntity<Map<String, Object>> getCourseAverageScore(@PathVariable Long courseId) {
+    public ResponseEntity<Result<Double>> getCourseAverageScore(@PathVariable Long courseId) {
         Double average = gradeService.getAverageScoreByCourse(courseId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("message", "查询成功");
-        response.put("data", average);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Result.success("查询成功", average));
     }
 }
