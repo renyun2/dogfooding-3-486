@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.entity.Clazz;
 import com.student.management.service.ClazzService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,7 @@ public class ClazzController {
 
     @PostMapping
     @Operation(summary = "创建新班级")
+    @OperationLog(module = "班级管理", type = "新增")
     public ResponseEntity<Map<String, Object>> createClass(@Valid @RequestBody Clazz clazz) {
         Clazz created = clazzService.createClass(clazz);
         Map<String, Object> response = new HashMap<>();
@@ -58,6 +60,7 @@ public class ClazzController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新班级信息")
+    @OperationLog(module = "班级管理", type = "修改")
     public ResponseEntity<Map<String, Object>> updateClass(@PathVariable Long id, @Valid @RequestBody Clazz clazz) {
         Clazz updated = clazzService.updateClass(id, clazz);
         Map<String, Object> response = new HashMap<>();
@@ -69,6 +72,7 @@ public class ClazzController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除班级")
+    @OperationLog(module = "班级管理", type = "删除")
     public ResponseEntity<Map<String, Object>> deleteClass(@PathVariable Long id) {
         clazzService.deleteClass(id);
         Map<String, Object> response = new HashMap<>();

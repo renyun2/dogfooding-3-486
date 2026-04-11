@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.entity.Student;
 import com.student.management.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,7 @@ public class StudentController {
 
     @PostMapping
     @Operation(summary = "创建新学生")
+    @OperationLog(module = "学生管理", type = "新增")
     public ResponseEntity<Map<String, Object>> createStudent(@Valid @RequestBody Student student) {
         Student created = studentService.createStudent(student);
         Map<String, Object> response = new HashMap<>();
@@ -58,6 +60,7 @@ public class StudentController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新学生信息")
+    @OperationLog(module = "学生管理", type = "修改")
     public ResponseEntity<Map<String, Object>> updateStudent(
             @PathVariable Long id,
             @Valid @RequestBody Student student) {
@@ -71,6 +74,7 @@ public class StudentController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除学生")
+    @OperationLog(module = "学生管理", type = "删除")
     public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         Map<String, Object> response = new HashMap<>();
