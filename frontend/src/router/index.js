@@ -36,6 +36,12 @@ const routes = [
         name: 'GradeManage',
         component: () => import('../views/GradeManage.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/operation-logs',
+        name: 'OperationLogList',
+        component: () => import('../views/OperationLogList.vue'),
+        meta: { requiresAuth: true }
     }
 ]
 

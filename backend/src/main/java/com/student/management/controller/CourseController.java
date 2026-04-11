@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.entity.Course;
 import com.student.management.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ public class CourseController {
 
     @GetMapping
     @Operation(summary = "获取所有课程")
+    @OperationLog(module = "课程管理", operationType = "查询", description = "查询所有课程列表")
     public ResponseEntity<Map<String, Object>> getAllCourses() {
         List<Course> courses = courseService.getAllCourses();
         Map<String, Object> response = new HashMap<>();
@@ -36,6 +38,7 @@ public class CourseController {
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取课程")
+    @OperationLog(module = "课程管理", operationType = "查询", description = "根据ID查询课程详情")
     public ResponseEntity<Map<String, Object>> getCourseById(@PathVariable Long id) {
         Course course = courseService.getCourseById(id);
         Map<String, Object> response = new HashMap<>();
@@ -47,6 +50,7 @@ public class CourseController {
 
     @PostMapping
     @Operation(summary = "创建新课程")
+    @OperationLog(module = "课程管理", operationType = "新增", description = "创建新课程")
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course) {
         Course created = courseService.createCourse(course);
         Map<String, Object> response = new HashMap<>();
@@ -58,6 +62,7 @@ public class CourseController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新课程信息")
+    @OperationLog(module = "课程管理", operationType = "更新", description = "更新课程信息")
     public ResponseEntity<Map<String, Object>> updateCourse(
             @PathVariable Long id,
             @Valid @RequestBody Course course) {
@@ -71,6 +76,7 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除课程")
+    @OperationLog(module = "课程管理", operationType = "删除", description = "删除课程")
     public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         Map<String, Object> response = new HashMap<>();
@@ -81,6 +87,7 @@ public class CourseController {
 
     @GetMapping("/search")
     @Operation(summary = "按名称搜索课程")
+    @OperationLog(module = "课程管理", operationType = "查询", description = "按名称搜索课程")
     public ResponseEntity<Map<String, Object>> searchCourses(@RequestParam String name) {
         List<Course> courses = courseService.searchCourses(name);
         Map<String, Object> response = new HashMap<>();
