@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.service.SystemConfigService;
 import com.student.management.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "管理员登录")
+    @OperationLog(module = "认证管理", operationType = "登录", description = "管理员登录")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
@@ -48,6 +50,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "管理员退出")
+    @OperationLog(module = "认证管理", operationType = "退出", description = "管理员退出")
     public ResponseEntity<Map<String, Object>> logout(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -61,6 +64,7 @@ public class AuthController {
 
     @PutMapping("/password")
     @Operation(summary = "修改管理员密码")
+    @OperationLog(module = "认证管理", operationType = "修改密码", description = "修改管理员密码")
     public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> request) {
         String oldPassword = request.get("oldPassword");
         String newPassword = request.get("newPassword");

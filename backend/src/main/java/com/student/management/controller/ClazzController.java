@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.entity.Clazz;
 import com.student.management.service.ClazzService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ public class ClazzController {
 
     @GetMapping
     @Operation(summary = "获取所有班级")
+    @OperationLog(module = "班级管理", operationType = "查询", description = "查询所有班级列表")
     public ResponseEntity<Map<String, Object>> getAllClasses() {
         List<Clazz> classes = clazzService.getAllClasses();
         Map<String, Object> response = new HashMap<>();
@@ -36,6 +38,7 @@ public class ClazzController {
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取班级")
+    @OperationLog(module = "班级管理", operationType = "查询", description = "根据ID查询班级详情")
     public ResponseEntity<Map<String, Object>> getClassById(@PathVariable Long id) {
         Clazz clazz = clazzService.getClassById(id);
         Map<String, Object> response = new HashMap<>();
@@ -47,6 +50,7 @@ public class ClazzController {
 
     @PostMapping
     @Operation(summary = "创建新班级")
+    @OperationLog(module = "班级管理", operationType = "新增", description = "创建新班级")
     public ResponseEntity<Map<String, Object>> createClass(@Valid @RequestBody Clazz clazz) {
         Clazz created = clazzService.createClass(clazz);
         Map<String, Object> response = new HashMap<>();
@@ -58,6 +62,7 @@ public class ClazzController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新班级信息")
+    @OperationLog(module = "班级管理", operationType = "更新", description = "更新班级信息")
     public ResponseEntity<Map<String, Object>> updateClass(@PathVariable Long id, @Valid @RequestBody Clazz clazz) {
         Clazz updated = clazzService.updateClass(id, clazz);
         Map<String, Object> response = new HashMap<>();
@@ -69,6 +74,7 @@ public class ClazzController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除班级")
+    @OperationLog(module = "班级管理", operationType = "删除", description = "删除班级")
     public ResponseEntity<Map<String, Object>> deleteClass(@PathVariable Long id) {
         clazzService.deleteClass(id);
         Map<String, Object> response = new HashMap<>();
