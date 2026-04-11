@@ -26,4 +26,8 @@ public class TokenService {
             tokenStore.remove(token);
         }
     }
+
+    public String getUsernameFromToken(String token) {
+        return tokenStore.get(token);
+    }
 }

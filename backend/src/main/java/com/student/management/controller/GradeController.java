@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.OperationLog;
 import com.student.management.entity.Grade;
 import com.student.management.service.GradeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,6 +70,7 @@ public class GradeController {
 
     @PostMapping
     @Operation(summary = "创建新成绩")
+    @OperationLog(module = "成绩管理", type = "新增")
     public ResponseEntity<Map<String, Object>> createGrade(@Valid @RequestBody Grade grade) {
         Grade created = gradeService.createGrade(grade);
         Map<String, Object> response = new HashMap<>();
@@ -80,6 +82,7 @@ public class GradeController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新成绩")
+    @OperationLog(module = "成绩管理", type = "修改")
     public ResponseEntity<Map<String, Object>> updateGrade(
             @PathVariable Long id,
             @Valid @RequestBody Grade grade) {
@@ -93,6 +96,7 @@ public class GradeController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除成绩")
+    @OperationLog(module = "成绩管理", type = "删除")
     public ResponseEntity<Map<String, Object>> deleteGrade(@PathVariable Long id) {
         gradeService.deleteGrade(id);
         Map<String, Object> response = new HashMap<>();
