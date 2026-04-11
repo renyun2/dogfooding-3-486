@@ -27,6 +27,10 @@
             <el-icon><TrendCharts /></el-icon>
             <span>成绩管理</span>
           </router-link>
+          <router-link to="/operation-logs" class="nav-item">
+            <el-icon><Document /></el-icon>
+            <span>操作日志</span>
+          </router-link>
         </nav>
         <div class="header-right">
           <span class="username">
@@ -85,7 +89,7 @@
 import { computed, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { School, User, Reading, Monitor, TrendCharts, UserFilled, SwitchButton, Key } from '@element-plus/icons-vue'
+import { School, User, Reading, Monitor, TrendCharts, UserFilled, SwitchButton, Key, Document } from '@element-plus/icons-vue'
 import { logout, changePassword } from './api/auth'
 
 const router = useRouter()

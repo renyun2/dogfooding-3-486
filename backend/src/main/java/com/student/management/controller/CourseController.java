@@ -1,5 +1,6 @@
 package com.student.management.controller;
 
+import com.student.management.annotation.LogOperation;
 import com.student.management.entity.Course;
 import com.student.management.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,7 @@ public class CourseController {
 
     @PostMapping
     @Operation(summary = "创建新课程")
+    @LogOperation(module = "课程管理", type = "新增", description = "创建新课程")
     public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody Course course) {
         Course created = courseService.createCourse(course);
         Map<String, Object> response = new HashMap<>();
@@ -58,6 +60,7 @@ public class CourseController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新课程信息")
+    @LogOperation(module = "课程管理", type = "更新", description = "更新课程信息")
     public ResponseEntity<Map<String, Object>> updateCourse(
             @PathVariable Long id,
             @Valid @RequestBody Course course) {
@@ -71,6 +74,7 @@ public class CourseController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除课程")
+    @LogOperation(module = "课程管理", type = "删除", description = "删除课程")
     public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
         Map<String, Object> response = new HashMap<>();
