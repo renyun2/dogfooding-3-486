@@ -1,9 +1,19 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
-const baseURL = window.location.hostname === 'localhost'
-    ? 'http://localhost:8247'
-    : 'http://backend:8080'
+const hostname = window.location.hostname
+const isLoopback =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '[::1]'
+
+// 开发：宿主浏览器连本机映射口 8247；其它（如局域网 IP）可走 compose 服务名后端
+// 生产构建：同源（Spring 单体打 JAR 或 Nginx 反代 /api），避免把「backend」塞进浏览器会去解析主机名里
+const baseURL = import.meta.env.DEV
+    ? isLoopback
+        ? 'http://localhost:8247'
+        : 'http://backend:8080'
+    : ''
 
 const request = axios.create({
     baseURL: baseURL,

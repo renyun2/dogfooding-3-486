@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,18 @@ public class GlobalExceptionHandler {
         response.put("code", 500);
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    /**
+     * 缺少静态文件（如 favicon、devtools 探测）不应按 500 打 ERROR，也不应混入 JSON API 语义污染浏览器 GET。
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(NoResourceFoundException ex) {
+        log.debug("Static resource not found: {}", ex.getResourcePath());
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 404);
+        response.put("message", "Not Found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
